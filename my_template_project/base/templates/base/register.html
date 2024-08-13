@@ -11,7 +11,7 @@
                     <h3 class="card-title">Register</h3>
                 </div>
                 <div class="card-body">
-                    <form method="post">
+                    <form id="registerForm" method="post">
                         {% csrf_token %}
                         <div class="mb-3">
                             <label for="{{ form.username.id_for_label }}" class="form-label">Username</label>
@@ -35,4 +35,51 @@
         </div>
     </div>
 </div>
+{% endblock %}
+
+{% block custom_script %}
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const form = document.getElementById('registerForm');
+
+        form.addEventListener('submit', function(event) {
+            event.preventDefault(); // Prevent the default form submission
+
+            const formData = new FormData(form);
+
+            fetch("{% url 'register' %}", {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    Message(data.message, 'alert alert-success');
+                    setTimeout(function() {
+                        window.location.href = '{% url "login" %}';
+                    }, 1500);
+                } else {
+                    if (data.errors) {
+                        Object.values(data.errors).forEach(function(error) {
+                            error.forEach(function(message) {
+                                Message(message.message, 'alert alert-error');
+                            });
+                        });
+                    } else {
+                        Message('An unexpected error occurred.', 'alert alert-error');
+                    }
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                Message('An error occurred while processing your request.', 'alert alert-error');
+            });
+        });
+    });
+    
+    </script>
 {% endblock %}
