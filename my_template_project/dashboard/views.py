@@ -7,11 +7,11 @@ def dashboard_view(request):
     is_superuser = request.user.is_superuser
 
     # Choose the base template based on the user's superuser status
-    base_template = 'base/superuserBase.html' if is_superuser else 'base/userBase.html'
+    is_super = True if is_superuser else False
 
     # Pass the base template to the context
     context = {
-        'base_template': base_template
+        'is_super': is_super
     }
 
     return render(request, 'dashboard/home.html', context)
