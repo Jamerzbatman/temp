@@ -1,0 +1,100 @@
+/* General Body Styles */
+body {
+    background-color: #121212; /* Dark background */
+    color: #e0e0e0; /* Light text color */
+    font-family: 'Arial', sans-serif;
+}
+
+/* Navbar */
+.navbar {
+    background-color: #1f1f1f; /* Darker background for the navbar */
+}
+
+.navbar-brand, .nav-link {
+    color: #e0e0e0 !important; /* Light text color for navbar items */
+}
+
+.navbar-toggler-icon {
+    background-color: #e0e0e0; /* Light color for the toggler icon */
+}
+
+/* Modal */
+.modal-content {
+    background-color: #1f1f1f; /* Dark background for modal */
+    color: #e0e0e0; /* Light text color in modal */
+}
+
+.modal-header {
+    border-bottom: 1px solid #333; /* Subtle border */
+}
+
+.modal-body {
+    padding: 20px;
+}
+
+/* Forms */
+.form-control {
+    background-color: #333; /* Dark background for form fields */
+    color: #e0e0e0; /* Light text color for form fields */
+    border: 1px solid #444; /* Border color */
+}
+
+.form-control::placeholder {
+    color: #888; /* Placeholder text color */
+}
+
+/* Buttons */
+.btn-outline-light {
+    border-color: #e0e0e0;
+    color: #e0e0e0;
+}
+
+.btn-outline-light:hover {
+    background-color: #e0e0e0;
+    color: #121212;
+}
+
+.btn-primary {
+    background-color: #007bff;
+    border-color: #007bff;
+}
+
+.btn-primary:hover {
+    background-color: #0056b3;
+    border-color: #004085;
+}
+
+/* Cards */
+.card {
+    background-color: #1f1f1f; /* Dark background for cards */
+    border: 1px solid #333; /* Subtle border */
+}
+
+.card-header {
+    background-color: #333; /* Slightly lighter background for the card header */
+    color: #e0e0e0;
+}
+
+/* Other Elements */
+a {
+    color: #007bff; /* Link color */
+}
+
+a:hover {
+    color: #0056b3; /* Link color on hover */
+}
+
+.container {
+    padding: 20px;
+}
+.button-spacing {
+    margin-right: 1rem; /* Adjust the value as needed */
+}
+.card-footer {
+    background-color: #343a40; /* Dark background for footer */
+    color: #f8f9fa; /* Light text color */
+}
+
+.card-footer .btn {
+    margin-top: 0.5rem; /* Add some space above the button */
+}

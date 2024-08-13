@@ -1,0 +1,24 @@
+{% load static %}
+{% load bootstrap4 %}
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    {% bootstrap_css %}
+    <link rel="stylesheet" href="{% static 'css/stylePages.css' %}">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>{% block title %}My Project{% endblock %}</title>
+</head>
+
+<body>
+    {% include 'base/navPages.html' %}
+    {% block content %}
+    {% endblock %}
+    <!-- Bootstrap JS and dependencies -->
+    {% bootstrap_javascript jquery='full' %}
+</body>
+</html>
