@@ -11,7 +11,7 @@
         </li>
 
         <li class="nav-item" role="presentation">
-            <a class="nav-link" id="settings-Pages-tab" data-bs-toggle="tab" href="#settings-Pages" role="tab" aria-controls="settings-Pages" aria-selected="false">Pages</a>
+            <a class="nav-link" id="settings-pages-tab" data-bs-toggle="tab" href="#settings-pages" role="tab" aria-controls="settings-pages" aria-selected="false">Pages</a>
         </li>
         <li class="nav-item" role="presentation">
             <a class="nav-link" id="settings-reddit-tab" data-bs-toggle="tab" href="#settings-reddit" role="tab" aria-controls="settings-reddit" aria-selected="false">Reddit</a>
@@ -29,8 +29,8 @@
             email
         </div>   
 
-        <div class="tab-pane fade" id="settings-Pages" role="tabpanel" aria-labelledby="settings-Pages-tab">
-            Pages
+        <div class="tab-pane fade" id="settings-pages" role="tabpanel" aria-labelledby="settings-Pages-tab">
+            {% include 'pages/settings.html' %}
         </div>
 
         <div class="tab-pane fade" id="settings-reddit" role="tabpanel" aria-labelledby="settings-reddit-tab">
