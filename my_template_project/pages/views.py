@@ -1,17 +1,14 @@
+from django.template.exceptions import TemplateDoesNotExist
 from django.shortcuts import render, get_object_or_404
 from django.views.decorators.csrf import csrf_exempt
-from django.views.decorators.http import require_POST
-from django.template.exceptions import TemplateDoesNotExist
-from django.template import Template, Context
+from pages.models import Page, Placeholder
 from django.http import JsonResponse
 from pages.forms import PageForm
 from django.conf import settings
-from pages.models import Page, Placeholder
-import json
 import os
 import re
 
-template_dir = os.path.join(settings.BASE_DIR, 'pages', 'templates', 'templates')
+
 
 
 
@@ -24,7 +21,7 @@ def home_view(request):
     
     # Build a context with placeholders (populate dynamically)
     context = {placeholder.name: placeholder.text_value or placeholder.image_value for placeholder in placeholders}
-    template = os.path.join(template_dir,page.template_name)
+    template = os.path.join(settings.TEMPLATE_DIR,page.template_name)
     # Render the template dynamically based on the `Page` model's template_name
     return render(request, template, context)
 
@@ -34,7 +31,7 @@ def dynamic_page(request, slug):
 
     # Build a context with placeholders
     context = {placeholder.name: placeholder.text_value or placeholder.image_value for placeholder in placeholders}
-    template = os.path.join(template_dir,page.template_name)
+    template = os.path.join(settings.TEMPLATE_DIR,page.template_name)
 
     return render(request, template, context)
 
@@ -54,7 +51,7 @@ def add_page(request):
 
 def list_templates(request):
     # Assuming templates are in the 'templates/' directory at the root of the project
-    templates = [f for f in os.listdir(template_dir) if os.path.isfile(os.path.join(template_dir, f)) and f.endswith('.html')]
+    templates = [f for f in os.listdir(settings.TEMPLATE_DIR) if os.path.isfile(os.path.join(settings.TEMPLATE_DIR, f)) and f.endswith('.html')]
     return JsonResponse({'templates': templates})
 
 
@@ -63,7 +60,7 @@ def get_placeholders(request):
     if not template_name:
         return JsonResponse({'error': 'No template specified'}, status=400)
 
-    template_path = os.path.join(settings.BASE_DIR, 'pages', 'templates', 'templates', template_name)
+    template_path = os.path.join(settings.TEMPLATE_DIR, template_name)
 
     if not os.path.exists(template_path):
         return JsonResponse({'error': 'Template not found'}, status=404)
@@ -88,7 +85,7 @@ def list_pages(request):
     return JsonResponse({'pages': list(pages)})
 
 def generate_placeholders_html(template_name, page):
-    template_path = os.path.join(template_dir, template_name)
+    template_path = os.path.join(settings.TEMPLATE_DIR, template_name)
 
     if not os.path.exists(template_path):
         return ''
@@ -196,7 +193,7 @@ def update_placeholders(request, page_id):
 
 # View to edit a template
 def edit_template(request, template_name):
-    template_path = os.path.join(template_dir, template_name)
+    template_path = os.path.join(settings.TEMPLATE_DIR, template_name)
 
     if request.method == 'GET':
         if os.path.exists(template_path):
@@ -226,7 +223,7 @@ def add_template(request):
         content = request.POST.get('template_content')  # Changed from 'content' to 'template_content'
 
         # Define path to the new template
-        template_path = os.path.join(template_dir, f"{template_name}.html")
+        template_path = os.path.join(settings.TEMPLATE_DIR, f"{template_name}.html")
 
         # Check if the template_name or content is empty
         if not template_name or not content:
@@ -254,7 +251,7 @@ def get_template_content(request):
 
     try:
         # Assuming your templates are stored in the templates/ directory
-        template_path = os.path.join(template_dir, template_name)
+        template_path = os.path.join(settings.TEMPLATE_DIR, template_name)
         
         # Load the template content
         with open(template_path, 'r') as file:
