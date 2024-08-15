@@ -7,18 +7,6 @@ body {
     padding: 0;
 }
 
-/* Navbar */
-.navbar {
-    background-color: #1f1f1f; /* Darker background for the navbar */
-}
-
-.navbar-brand, .nav-link {
-    color: #e0e0e0 !important; /* Light text color for navbar items */
-}
-
-.navbar-toggler-icon {
-    background-color: #e0e0e0; /* Light color for the toggler icon */
-}
 
 /* Modal */
 .modal-content {
@@ -191,41 +179,6 @@ a:hover {
 .tab-pane h3 {
     color: #e5e5e5;
     margin-top: 0;
-}
-.message-box {
-    padding: 15px;
-    margin-bottom: 10px;
-    border-radius: 5px;
-    color: #fff;
-    font-size: 16px;
-    width: 300px; /* Adjust width as needed */
-}
-.messages {
-    position: fixed; /* Position fixed so it stays in place */
-    top: 10px;
-    right: 10px;
-    width: auto; /* Adjust width as needed */
-    z-index: 1000; /* Ensure it is on top of other content */
-}
-.messages .alert {
-    padding: 10px;
-    border-radius: 5px;
-    color: #2a2a2a;
-}
-
-.messages .alert.success {
-    background-color: #28a745;
-}
-
-.messages .alert.error {
-    background-color: #dc3545;
-}
-.messages .alert.alert-success {
-    background-color: #28a745;
-}
-
-.messages .alert.alert-error {
-    background-color: #dc3545;
 }
 /* Responsive styles */
 @media (max-width: 992px) {

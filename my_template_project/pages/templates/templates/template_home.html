@@ -1,4 +1,8 @@
 {% extends 'base/basePages.html' %}
+{% block title %}
+{{ title_text }}
+{% endblock %}
+
 {% block content %}
 
     <header>
@@ -11,7 +15,7 @@
     </section>
 
     <section id="benefits">
-        <h2>{{ benefits_section_title }}</h2>
+        <h2>{{ benefits_section_title_text }}</h2>
         <div class="benefit">
             <img src="{{ benefit_1_icon.url }}" alt="Benefit 1 Icon" class="placeholder" id="benefit-1-icon">
             <p class="placeholder" id="benefit-1-text">{{ benefit_1_text }}</p>
@@ -27,7 +31,7 @@
     </section>
 
     <section id="features">
-        <h2>{{ features_section_title }}</h2>
+        <h2>{{ features_section_title_text }}</h2>
         <div class="feature">
             <img src="{{ feature_1_icon.url }}" alt="Feature 1 Icon" class="placeholder" id="feature-1-icon">
             <p class="placeholder" id="feature-1-text">{{ feature_1_text }}</p>
@@ -55,7 +59,7 @@
     </section>
 
     <section id="how-it-works">
-        <h2>{{ how_it_works_title }}</h2>
+        <h2>{{ how_it_works_title_text }}</h2>
         <div class="how-it-works-step">
             <img src="{{ step_1_icon.url }}" alt="Step 1 Icon" class="placeholder" id="step-1-icon">
             <p class="placeholder" id="step-1-text">{{ step_1_text }}</p>

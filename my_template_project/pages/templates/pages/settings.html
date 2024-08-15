@@ -8,6 +8,7 @@
             <!-- Page buttons will be populated here -->
         </div>
         <button id="showTemplates" class="btn btn-secondary btn-block mb-2">View Templates</button>
+        <button id="showWebSitData" class="btn btn-secondary btn-block mb-2">View WebSite Details</button>
     </div>
     <!-- Main content area -->
     <div class="col-md-9">
@@ -173,16 +174,13 @@ $('#page-form').on('submit', function(event) {
     });
 });
 
-$('#page-list').on('click', 'button', function() {
-    const pageId = $(this).data('page-id');
-
+// Function to refresh the page data
+function refreshPageData(pageId) {
     $.ajax({
         url: '/get-page-data/',
         method: 'GET',
         data: { id: pageId },
         success: function(data) {
-            console.log(data);  // Check the entire data response here
-
             if (data.placeholders_html) {
                 const editPageUrl = `/update-placeholders/${pageId}/`;
 
@@ -193,6 +191,7 @@ $('#page-list').on('click', 'button', function() {
                     <h1>${data.template_name}</h1>
                     <form id="edit-page-form" action="${editPageUrl}" method="post" enctype="multipart/form-data">
                         <input type="hidden" name="csrfmiddlewaretoken" value="${csrfToken}">
+                        <input type="hidden" name="page_id" value="${pageId}"> <!-- Include page ID as hidden input -->
                         <div class="form-check mb-3">
                             <input class="form-check-input" type="checkbox" id="showInNavbar" name="show_in_navbar" ${data.show_in_navbar ? 'checked' : ''}>
                             <label class="form-check-label" for="showInNavbar">Show in Navbar</label>
@@ -209,6 +208,12 @@ $('#page-list').on('click', 'button', function() {
             alertMessage(error, 'alert alert-error');
         }
     });
+}
+
+
+$('#page-list').on('click', 'button', function() {
+    const pageId = $(this).data('page-id');
+    refreshPageData(pageId);
 });
 
 // Handle form submission
@@ -216,9 +221,11 @@ $('#page-content').on('submit', '#edit-page-form', function(e) {
     e.preventDefault();
 
     var formData = new FormData(this);
+    var form = $(this);
+    var pageId = form.find('input[name="page_id"]').val(); // Assuming you have a hidden input for page ID
 
     $.ajax({
-        url: $(this).attr('action'),  // Use the action URL from the form
+        url: form.attr('action'),  // Use the action URL from the form
         method: 'POST',
         data: formData,
         processData: false,
@@ -226,6 +233,9 @@ $('#page-content').on('submit', '#edit-page-form', function(e) {
         success: function(response) {
             if (response.success) {
                 alertMessage('Page updated successfully!', 'alert alert-success');
+                
+                // Refresh the page data
+                refreshPageData(pageId);
             } else {
                 alertMessage('Failed to update page.', 'alert alert-error');
             }
@@ -252,7 +262,6 @@ $('#edit-page-form').on('submit', function(event) {
         contentType: false,
         processData: false,
         success: function(response) {
-            console.log('Response:', response);
             if (response.success) {
                 alertMessage('Placeholders updated successfully!', 'alert alert-success');
             } else {
@@ -310,10 +319,45 @@ function showTemplates() {
         error: function(xhr, status, error) {
             alert('Error fetching templates: ' + error);
         }
-    });}
-    // Show the templates list
+    })
+;}
+
+// Show the templates list
 $('#showTemplates').on('click', function() {
     showTemplates()
+});
+function showWebSitData() {
+    $.ajax({
+        url: '/list-templates/',
+        method: 'GET',
+        success: function(data) {
+            let templatesHtml = `
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h3 class="mb-0">Templates</h3>
+                    <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#addPage">
+                        +
+                    </button>
+                </div>
+            `;
+
+            $.each(data.templates, function(index, template) {
+                templatesHtml += `
+                    <button class="btn btn-info mb-2 edit-template-btn" data-template-name="${template}">
+                        ${template}
+                    </button>
+                `;
+            });
+
+            $('#page-content').html(templatesHtml);
+        },
+        error: function(xhr, status, error) {
+            alert('Error fetching templates: ' + error);
+        }
+    })
+;}
+// Show the templates list
+$('#showWebSitData').on('click', function() {
+    showWebSitData()
 });
 
 // Handle template button clicks to load content for editing

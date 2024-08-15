@@ -142,7 +142,6 @@ def extract_placeholders(template_content):
         key = match.strip()
         if key:  # Ignore empty matches
             placeholders[key] = key.replace('_', ' ').title()
-    print(matches)
     return placeholders
 
 
@@ -174,11 +173,6 @@ def update_placeholders(request, page_id):
         show_in_navbar = request.POST.get('show_in_navbar') == 'on'
         page.show_in_navbar = show_in_navbar
         page.save()
-
-        # Debug POST and FILES data
-        print("POST data:", request.POST)
-        print("FILES data:", request.FILES)
-
         # Process POST data
         for key, value in request.POST.items():
             if key == 'csrfmiddlewaretoken':
@@ -190,7 +184,10 @@ def update_placeholders(request, page_id):
             # Update text value if available
             if value and value.strip() != '':
                 placeholder.text_value = value
-
+                try:
+                    placeholder.save()
+                except Exception as e:
+                    errors[key] = str(e)
         # Process file uploads from request.FILES
         for key, file in request.FILES.items():
             if file and file.size > 0:
@@ -199,17 +196,9 @@ def update_placeholders(request, page_id):
                 placeholder.image_value = file
                 try:
                     placeholder.save()
-                    print(f"File received and saved for key '{key}': {file.name}")
                 except Exception as e:
                     errors[key] = str(e)
-                    print(f"Error saving file placeholder {key}: {e}")
 
-                    
-            try:
-                placeholder.save()
-            except Exception as e:
-                errors[key] = str(e)
-                print(f"Error saving placeholder {key}: {e}")
 
         if errors:
             return JsonResponse({'success': False, 'errors': errors})
@@ -252,18 +241,22 @@ def edit_template(request, template_name):
 def add_template(request):
     if request.method == 'POST':
         template_name = request.POST.get('template_name')
+        template_title = "{{ title_text }}"  # Get the new template title
         content = request.POST.get('template_content')  # Changed from 'content' to 'template_content'
 
         # Define path to the new template
         template_path = os.path.join(settings.TEMPLATE_DIR, f"{template_name}.html")
 
-        # Check if the template_name or content is empty
-        if not template_name or not content:
-            return JsonResponse({'success': False, 'message': 'Template name or content is missing.'})
+        # Check if any required fields are empty
+        if not template_name or not template_title or not content:
+            return JsonResponse({'success': False, 'message': 'Template name, title, or content is missing.'})
 
-        # Add the extends and block content structure
+        # Add the extends, block title, and block content structure
         full_content = (
             "{% extends 'base/basePages.html' %}\n"
+            "{% block title %}\n"
+            f"{template_title}\n"  # Insert template title here
+            "{% endblock %}\n\n"
             "{% block content %}\n\n"
             f"{content}\n\n"
             "{% endblock %}"
@@ -280,7 +273,6 @@ def add_template(request):
             return JsonResponse({'success': False, 'message': f'Error writing template: {str(e)}'})
     
     return JsonResponse({'error': 'Invalid request method.'}, status=400)
-
 
 
 

@@ -1,7 +1,9 @@
+{% extends 'base/basePages.html' %}
+{% block title %}
+{{ title_text }}
+{% endblock %}
 
-    <header>
-        <h1>{{ header_text }}</h1>
-    </header>
+{% block content %}
 
     <section id="hero">
         <div class="placeholder" id="hero-text">{{ hero_text }}</div>
@@ -23,5 +25,7 @@
             <p class="placeholder" id="benefit-3-text">{{ benefit_3_text }}</p>
         </div>
     </section>
+{% endblock %}
+
 
 
