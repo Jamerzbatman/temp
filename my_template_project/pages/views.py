@@ -132,7 +132,7 @@ def extract_placeholders(template_content):
     placeholders = {}
     
     # Find placeholders enclosed in {}
-    matches = re.findall(r'\{(\s*\w+)\s*\}', template_content)
+    matches = re.findall(r'\{{(\s*\w+)\s*\}}', template_content)
     for match in matches:
         key = match.strip()
         if key:  # Ignore empty matches
@@ -228,11 +228,19 @@ def add_template(request):
         # Check if the template_name or content is empty
         if not template_name or not content:
             return JsonResponse({'success': False, 'message': 'Template name or content is missing.'})
-        
+
+        # Add the extends and block content structure
+        full_content = (
+            "{% extends 'base/basePages.html' %}\n"
+            "{% block content %}\n\n"
+            f"{content}\n\n"
+            "{% endblock %}"
+        )
+
         try:
-            # Write the content to the new template
+            # Write the full content to the new template
             with open(template_path, 'w') as template_file:
-                template_file.write(content)
+                template_file.write(full_content)
             return JsonResponse({'success': True, 'message': 'Template added successfully!'})
         
         except IOError as e:
@@ -240,6 +248,8 @@ def add_template(request):
             return JsonResponse({'success': False, 'message': f'Error writing template: {str(e)}'})
     
     return JsonResponse({'error': 'Invalid request method.'}, status=400)
+
+
 
 
 
