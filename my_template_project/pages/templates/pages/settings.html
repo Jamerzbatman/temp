@@ -64,6 +64,10 @@
                         <label for="new-template-content" class="form-label">Template HTML Content:</label>
                         <textarea id="new-template-content" name="template_content" class="form-control" rows="8" required></textarea>
                     </div>
+                    <div class="mb-3">
+                        <label for="show-in-navbar" class="form-label">Show in Navbar:</label>
+                        <input type="checkbox" id="show-in-navbar" name="show_in_navbar">
+                    </div>
                     <button type="submit" class="btn btn-primary">Save Template</button>
                 </form>
             </div>
@@ -178,13 +182,21 @@ $('#page-list').on('click', 'button', function() {
         data: { id: pageId },
         success: function(data) {
             console.log(data);  // Check the entire data response here
+
             if (data.placeholders_html) {
-                let editPageUrl = `/update-placeholders/${pageId}/`;  // Use pageId here
+                const editPageUrl = `/update-placeholders/${pageId}/`;
+
+                // Dynamically inject CSRF token into the form
+                const csrfToken = $('input[name="csrfmiddlewaretoken"]').val();
 
                 $('#page-content').html(`
                     <h1>${data.template_name}</h1>
                     <form id="edit-page-form" action="${editPageUrl}" method="post" enctype="multipart/form-data">
-                        <input type="hidden" name="csrfmiddlewaretoken" value="${getCSRFToken()}">
+                        <input type="hidden" name="csrfmiddlewaretoken" value="${csrfToken}">
+                        <div class="form-check mb-3">
+                            <input class="form-check-input" type="checkbox" id="showInNavbar" name="show_in_navbar" ${data.show_in_navbar ? 'checked' : ''}>
+                            <label class="form-check-label" for="showInNavbar">Show in Navbar</label>
+                        </div>
                         ${data.placeholders_html}
                         <button type="submit" class="btn btn-primary">Save Changes</button>
                     </form>
@@ -229,7 +241,9 @@ $('#edit-page-form').on('submit', function(event) {
     event.preventDefault(); // Prevent default form submission
 
     var formData = new FormData(this);
-    console.log('FormData:', formData);
+
+    // Add the checkbox value explicitly
+    formData.append('show_in_navbar', $('#showInNavbar').is(':checked') ? 'on' : 'off');
 
     $.ajax({
         url: $(this).attr('action'),
@@ -250,6 +264,7 @@ $('#edit-page-form').on('submit', function(event) {
         }
     });
 });
+
 
     // Fetch and display list of pages
 function listPages() {
@@ -326,26 +341,7 @@ $('#page-content').on('click', '.edit-template-btn', function() {
     });
 });
 
-// Open modal to edit a template when a template button is clicked
-$('#templateModal').on('click', '.edit-template-btn', function() {
-    var templateName = $(this).data('template-name');
 
-    // Fetch template content for editing
-    $.ajax({
-        url: '/get-template-content/',
-        method: 'GET',
-        data: { template_name: templateName },
-        success: function(data) {
-            $('#template-name').val(data.template_name);
-            $('#template-content').val(data.template_content);
-            $('#templateModal').modal('hide'); // Close the list of templates
-            $('#templateModal').modal('show'); // Show the editor modal
-        },
-        error: function(xhr, status, error) {
-            console.error('Error fetching template content:', error);
-        }
-    });
-});
 
 
 $('#add-template-form').on('submit', function(event) {

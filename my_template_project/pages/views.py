@@ -19,8 +19,10 @@ def home_view(request):
     # Fetch all the placeholders related to this page
     placeholders = Placeholder.objects.filter(page=page)
     
+    navbar_pages = Page.objects.filter(show_in_navbar=True)
     # Build a context with placeholders (populate dynamically)
     context = {placeholder.name: placeholder.text_value or placeholder.image_value for placeholder in placeholders}
+    context['navbar_pages'] = navbar_pages
     template = os.path.join(settings.TEMPLATE_DIR,page.template_name)
     # Render the template dynamically based on the `Page` model's template_name
     return render(request, template, context)
@@ -29,8 +31,11 @@ def dynamic_page(request, slug):
     page = get_object_or_404(Page, slug=slug)
     placeholders = Placeholder.objects.filter(page=page)
 
+    navbar_pages = Page.objects.filter(show_in_navbar=True)
+
     # Build a context with placeholders
     context = {placeholder.name: placeholder.text_value or placeholder.image_value for placeholder in placeholders}
+    context['navbar_pages'] = navbar_pages
     template = os.path.join(settings.TEMPLATE_DIR,page.template_name)
 
     return render(request, template, context)
@@ -121,7 +126,7 @@ def generate_placeholders_html(template_name, page):
                 <div class="mb-3">
                     <label for="{key}" class="form-label">{label}:</label>
                     {image_preview}
-                    <input type="file" id="{key}" name="{key}" class="form-control" accept="image/*">
+                    <input type="file" id="{key}" name="{key}" class="form-control" accept="placeholders/*">
                 </div>'''
 
     return placeholders_html
@@ -131,13 +136,13 @@ def generate_placeholders_html(template_name, page):
 def extract_placeholders(template_content):
     placeholders = {}
     
-    # Find placeholders enclosed in {}
-    matches = re.findall(r'\{{(\s*\w+)\s*\}}', template_content)
+    # Find placeholders enclosed in {{ }}
+    matches = re.findall(r'\{\{\s*(\w+)(?:\.\w+)?\s*\}\}', template_content)
     for match in matches:
         key = match.strip()
         if key:  # Ignore empty matches
             placeholders[key] = key.replace('_', ' ').title()
-    
+    print(matches)
     return placeholders
 
 
@@ -153,8 +158,9 @@ def get_page_data(request):
         return JsonResponse({
             'success': True,
             'template_name': page.template_name,
-            'placeholders_html': placeholders_html
-        })
+            'placeholders_html': placeholders_html,
+            'show_in_navbar': page.show_in_navbar  
+      })
     else:
         return JsonResponse({'success': False, 'message': 'No placeholders found.'})
 
@@ -163,32 +169,58 @@ def update_placeholders(request, page_id):
     page = get_object_or_404(Page, id=page_id)
     errors = {}
 
+    if request.method == 'POST':
+        # Update navbar status
+        show_in_navbar = request.POST.get('show_in_navbar') == 'on'
+        page.show_in_navbar = show_in_navbar
+        page.save()
 
-    # Iterate through POST data
-    for key, value in request.POST.items():
-        if key == 'csrfmiddlewaretoken':
-            continue  # Skip CSRF token
+        # Debug POST and FILES data
+        print("POST data:", request.POST)
+        print("FILES data:", request.FILES)
 
-        # Check if the placeholder exists
-        placeholder, created = Placeholder.objects.get_or_create(page=page, name=key)
+        # Process POST data
+        for key, value in request.POST.items():
+            if key == 'csrfmiddlewaretoken':
+                continue  # Skip CSRF token
 
-        # Update text value if available
-        if value:
-            placeholder.text_value = value
+            # Check if the placeholder exists or create it
+            placeholder, created = Placeholder.objects.get_or_create(page=page, name=key)
 
-        # Update image value if available
-        if key in request.FILES:
-            placeholder.image_value = request.FILES.get(key)
+            # Update text value if available
+            if value and value.strip() != '':
+                placeholder.text_value = value
 
-        try:
-            placeholder.save()
-        except Exception as e:
-            errors[key] = str(e)
+        # Process file uploads from request.FILES
+        for key, file in request.FILES.items():
+            if file and file.size > 0:
+                # Ensure the placeholder exists
+                placeholder, created = Placeholder.objects.get_or_create(page=page, name=key)
+                placeholder.image_value = file
+                try:
+                    placeholder.save()
+                    print(f"File received and saved for key '{key}': {file.name}")
+                except Exception as e:
+                    errors[key] = str(e)
+                    print(f"Error saving file placeholder {key}: {e}")
 
-    if errors:
-        return JsonResponse({'success': False, 'errors': errors})
-    
-    return JsonResponse({'success': True, 'message': 'Placeholders updated successfully!'})
+                    
+            try:
+                placeholder.save()
+            except Exception as e:
+                errors[key] = str(e)
+                print(f"Error saving placeholder {key}: {e}")
+
+        if errors:
+            return JsonResponse({'success': False, 'errors': errors})
+
+        return JsonResponse({'success': True, 'message': 'Placeholders updated successfully!'})
+
+    return JsonResponse({'success': False, 'message': 'Invalid request method.'})
+
+
+
+
 
 
 # View to edit a template

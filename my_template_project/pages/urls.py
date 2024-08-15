@@ -1,4 +1,6 @@
+from django.conf.urls.static import static
 from django.urls import path
+from django.conf import settings
 from . import views
 
 urlpatterns = [
@@ -14,4 +16,4 @@ urlpatterns = [
     path('get-template-content/', views.get_template_content, name='get_template_content'),
     path('<slug:slug>/', views.dynamic_page, name='dynamic_page'),
     
-    ]
+] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
